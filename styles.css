@@ -421,6 +421,14 @@ td {
   font-size: 0.9rem;
 }
 
+tbody tr {
+  transition: background-color 160ms ease;
+}
+
+tbody tr.selected-row {
+  background: #edf7f3;
+}
+
 .employee-name {
   font-weight: 800;
 }

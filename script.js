@@ -21,6 +21,7 @@ const sampleAdditions = [
 
 let employeeData = [...employees];
 let additionIndex = 0;
+let selectedEmployeeName = "";
 
 const departmentFilter = document.querySelector("#departmentFilter");
 const bandFilter = document.querySelector("#bandFilter");
@@ -82,6 +83,12 @@ function updateMetrics(filtered) {
   document.querySelector("#riskRate").textContent = formatPercent(filtered.length ? (riskCount / filtered.length) * 100 : 0);
   document.querySelector("#promotionReady").textContent = readyCount;
   document.querySelector("#scoreTrend").textContent = filtered.length ? `${filtered.length} selected employees` : "No matching employees";
+}
+
+function setEmployeeHighlight() {
+  employeeTable.querySelectorAll("tr").forEach((row) => {
+    row.classList.toggle("selected-row", row.dataset.name === selectedEmployeeName);
+  });
 }
 
 function renderDepartmentChart(filtered) {
@@ -157,6 +164,7 @@ function renderTable(filtered) {
 
   filtered.forEach((employee) => {
     const row = document.createElement("tr");
+    row.dataset.name = employee.name;
     row.innerHTML = `
       <td><span class="employee-name">${employee.name}</span></td>
       <td>${employee.department}</td>
@@ -169,6 +177,8 @@ function renderTable(filtered) {
     `;
     employeeTable.appendChild(row);
   });
+
+  setEmployeeHighlight();
 }
 
 function render() {
@@ -188,6 +198,11 @@ function showToast(message) {
 
 function exportReport() {
   const filtered = getFilteredEmployees();
+  if (!filtered.length) {
+    showToast("No employee data to export.");
+    return;
+  }
+
   const rows = [
     ["Name", "Department", "Role", "Score", "Goals", "Potential", "Risk"],
     ...filtered.map((employee) => [
@@ -207,8 +222,11 @@ function exportReport() {
   const link = document.createElement("a");
   link.href = url;
   link.download = "hr-performance-report.csv";
+  link.style.display = "none";
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
   showToast("CSV report exported.");
 }
 
@@ -246,6 +264,8 @@ document.querySelector("#addEmployee").addEventListener("click", () => {
 employeeTable.addEventListener("click", (event) => {
   const button = event.target.closest(".table-action");
   if (!button) return;
+  selectedEmployeeName = button.dataset.name;
+  setEmployeeHighlight();
   showToast(`${button.dataset.name} opened for manager review.`);
 });
 
