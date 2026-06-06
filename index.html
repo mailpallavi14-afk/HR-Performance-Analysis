@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Performance Analysis</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <span class="brand-mark">HR</span>
+      <div>
+        <strong>PeoplePulse</strong>
+        <span>Performance Analytics</span>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <button class="nav-item active" type="button">Dashboard</button>
+      <button class="nav-item" type="button">Reviews</button>
+      <button class="nav-item" type="button">Teams</button>
+      <button class="nav-item" type="button">Reports</button>
+    </nav>
+
+    <section class="sidebar-panel">
+      <span class="panel-label">Current Cycle</span>
+      <strong>Q2 2026 Review</strong>
+      <p>91% manager completion</p>
+    </section>
+  </aside>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">HR Command Center</p>
+        <h1>Performance Analysis</h1>
+      </div>
+      <div class="actions">
+        <button class="icon-button" id="resetFilters" type="button" title="Reset filters" aria-label="Reset filters">Reset</button>
+        <button class="primary-button" id="exportReport" type="button">Export Report</button>
+      </div>
+    </header>
+
+    <section class="filters" aria-label="Performance filters">
+      <label>
+        Department
+        <select id="departmentFilter">
+          <option value="all">All departments</option>
+        </select>
+      </label>
+      <label>
+        Performance band
+        <select id="bandFilter">
+          <option value="all">All bands</option>
+          <option value="excellent">Excellent</option>
+          <option value="strong">Strong</option>
+          <option value="steady">Steady</option>
+          <option value="needs-focus">Needs focus</option>
+        </select>
+      </label>
+      <label>
+        Search employee
+        <input id="searchInput" type="search" placeholder="Name or role">
+      </label>
+    </section>
+
+    <section class="metric-grid" aria-label="Performance metrics">
+      <article class="metric-card">
+        <span>Average Score</span>
+        <strong id="avgScore">0.0</strong>
+        <p id="scoreTrend">Across selected employees</p>
+      </article>
+      <article class="metric-card">
+        <span>Goal Completion</span>
+        <strong id="avgGoals">0%</strong>
+        <p>Weighted by active objectives</p>
+      </article>
+      <article class="metric-card">
+        <span>Retention Risk</span>
+        <strong id="riskRate">0%</strong>
+        <p>Employees marked medium or high risk</p>
+      </article>
+      <article class="metric-card">
+        <span>Promotion Ready</span>
+        <strong id="promotionReady">0</strong>
+        <p>Based on score, goals, and potential</p>
+      </article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Department Performance</h2>
+            <p>Average review score by function</p>
+          </div>
+        </div>
+        <div class="bar-chart" id="departmentChart" aria-label="Department performance bar chart"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Risk & Potential</h2>
+            <p>Distribution of the selected group</p>
+          </div>
+        </div>
+        <div class="donut-wrap">
+          <div class="donut" id="riskDonut" role="img" aria-label="Retention risk donut chart"></div>
+          <div class="donut-legend" id="riskLegend"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Employee Review Table</h2>
+          <p id="employeeCount">0 employees</p>
+        </div>
+        <button class="secondary-button" id="addEmployee" type="button">Add Sample</button>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Role</th>
+              <th>Score</th>
+              <th>Goals</th>
+              <th>Potential</th>
+              <th>Risk</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="employeeTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
