@@ -37,6 +37,7 @@ let leaveData = [...leaves];
 let additionIndex = 0;
 let leaveAdditionIndex = 0;
 let selectedEmployeeName = "";
+let selectedLeaveIndex = -1;
 
 const departmentFilter = document.querySelector("#departmentFilter");
 const bandFilter = document.querySelector("#bandFilter");
@@ -118,6 +119,35 @@ function setEmployeeHighlight() {
   employeeTable.querySelectorAll("tr").forEach((row) => {
     row.classList.toggle("selected-row", row.dataset.name === selectedEmployeeName);
   });
+}
+
+function setLeaveHighlight() {
+  leaveTable.querySelectorAll("tr").forEach((row) => {
+    row.classList.toggle("selected-row", Number(row.dataset.leaveIndex) === selectedLeaveIndex);
+  });
+}
+
+function scrollToPanel(selector) {
+  const panel = document.querySelector(selector);
+  if (panel) {
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function handleNavigation(label) {
+  const navActions = {
+    Dashboard: () => scrollToPanel(".topbar"),
+    Reviews: () => scrollToPanel("#reviewsPanel"),
+    Teams: () => departmentFilter.focus(),
+    Leaves: () => scrollToPanel("#leavesPanel"),
+    Reports: exportReport
+  };
+
+  if (navActions[label]) {
+    navActions[label]();
+  }
+
+  showToast(`${label} selected.`);
 }
 
 function renderDepartmentChart(filtered) {
@@ -215,6 +245,7 @@ function renderLeaves() {
 
   leaveData.forEach((leave, index) => {
     const row = document.createElement("tr");
+    row.dataset.leaveIndex = index;
     row.innerHTML = `
       <td><span class="employee-name">${leave.employee}</span></td>
       <td>${leave.type}</td>
@@ -226,6 +257,8 @@ function renderLeaves() {
     `;
     leaveTable.appendChild(row);
   });
+
+  setLeaveHighlight();
 }
 
 function render() {
@@ -285,9 +318,10 @@ searchInput.addEventListener("input", render);
 
 navItems.forEach((item) => {
   item.addEventListener("click", () => {
+    const label = item.textContent.trim();
     navItems.forEach((navItem) => navItem.classList.remove("active"));
     item.classList.add("active");
-    showToast(`${item.textContent.trim()} selected.`);
+    handleNavigation(label);
   });
 });
 
@@ -313,8 +347,10 @@ document.querySelector("#addEmployee").addEventListener("click", () => {
 document.querySelector("#addLeave").addEventListener("click", () => {
   const nextLeave = sampleLeaves[leaveAdditionIndex % sampleLeaves.length];
   leaveData = [...leaveData, { ...nextLeave }];
+  selectedLeaveIndex = leaveData.length - 1;
   leaveAdditionIndex += 1;
   render();
+  scrollToPanel("#leavesPanel");
   showToast(`${nextLeave.employee} leave request added.`);
 });
 
@@ -332,6 +368,7 @@ leaveTable.addEventListener("click", (event) => {
 
   const index = Number(button.dataset.leaveIndex);
   const leave = leaveData[index];
+  selectedLeaveIndex = index;
   if (leave.status === "Pending") {
     leaveData = leaveData.map((item, itemIndex) => itemIndex === index ? { ...item, status: "Approved" } : item);
     render();
@@ -339,6 +376,7 @@ leaveTable.addEventListener("click", (event) => {
     return;
   }
 
+  setLeaveHighlight();
   showToast(`${leave.employee} leave details opened.`);
 });
 
