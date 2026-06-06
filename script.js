@@ -47,6 +47,8 @@ const employeeCount = document.querySelector("#employeeCount");
 const reviewDetail = document.querySelector("#reviewDetail");
 const reviewDetailSubtitle = document.querySelector("#reviewDetailSubtitle");
 const completeReview = document.querySelector("#completeReview");
+const teamGrid = document.querySelector("#teamGrid");
+const teamCount = document.querySelector("#teamCount");
 const leaveTable = document.querySelector("#leaveTable");
 const leaveCount = document.querySelector("#leaveCount");
 const departmentChart = document.querySelector("#departmentChart");
@@ -184,7 +186,7 @@ function handleNavigation(label) {
   const navActions = {
     Dashboard: () => scrollToPanel(".topbar"),
     Reviews: () => scrollToPanel("#reviewsPanel"),
-    Teams: () => departmentFilter.focus(),
+    Teams: () => scrollToPanel("#teamsPanel"),
     Leaves: () => scrollToPanel("#leavesPanel"),
     Reports: exportReport
   };
@@ -254,6 +256,36 @@ function renderRiskDonut(filtered) {
   });
 }
 
+function renderTeams() {
+  const departments = [...new Set(employeeData.map((employee) => employee.department))].sort();
+  teamGrid.innerHTML = "";
+  teamCount.textContent = `${departments.length} team${departments.length === 1 ? "" : "s"}`;
+
+  departments.forEach((department) => {
+    const team = employeeData.filter((employee) => employee.department === department);
+    const avgScore = average(team, (employee) => employee.score);
+    const avgGoals = average(team, (employee) => employee.goals);
+    const highRisk = team.filter((employee) => employee.risk === "High").length;
+    const ready = team.filter((employee) => employee.score >= 4.3 && employee.goals >= 88 && employee.potential === "High").length;
+
+    const card = document.createElement("button");
+    card.className = "team-card";
+    card.type = "button";
+    card.dataset.department = department;
+    card.innerHTML = `
+      <span>${department}</span>
+      <strong>${team.length} member${team.length === 1 ? "" : "s"}</strong>
+      <div class="team-stats">
+        <small>Score ${avgScore.toFixed(1)}</small>
+        <small>Goals ${formatPercent(avgGoals)}</small>
+        <small>Ready ${ready}</small>
+        <small>High risk ${highRisk}</small>
+      </div>
+    `;
+    teamGrid.appendChild(card);
+  });
+}
+
 function renderTable(filtered) {
   employeeTable.innerHTML = "";
   employeeCount.textContent = `${filtered.length} employee${filtered.length === 1 ? "" : "s"}`;
@@ -313,6 +345,7 @@ function render() {
   updateLeaveMetrics();
   renderDepartmentChart(filtered);
   renderRiskDonut(filtered);
+  renderTeams();
   renderTable(filtered);
   renderLeaves();
 }
@@ -400,6 +433,23 @@ document.querySelector("#addLeave").addEventListener("click", () => {
   render();
   scrollToPanel("#leavesPanel");
   showToast(`${nextLeave.employee} leave request added.`);
+});
+
+document.querySelector("#showAllTeams").addEventListener("click", () => {
+  departmentFilter.value = "all";
+  render();
+  scrollToPanel("#teamsPanel");
+  showToast("All teams shown.");
+});
+
+teamGrid.addEventListener("click", (event) => {
+  const card = event.target.closest(".team-card");
+  if (!card) return;
+
+  departmentFilter.value = card.dataset.department;
+  render();
+  scrollToPanel("#reviewsPanel");
+  showToast(`${card.dataset.department} team selected.`);
 });
 
 employeeTable.addEventListener("click", (event) => {
