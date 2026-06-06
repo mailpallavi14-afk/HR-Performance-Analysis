@@ -19,8 +19,23 @@ const sampleAdditions = [
   { name: "Amir Khan", department: "Sales", role: "Revenue Analyst", score: 3.6, goals: 75, potential: "Medium", risk: "Medium" }
 ];
 
+const leaves = [
+  { employee: "Ava Patel", type: "Annual", from: "2026-06-15", to: "2026-06-18", days: 4, status: "Approved" },
+  { employee: "Diego Ramos", type: "Sick", from: "2026-06-10", to: "2026-06-11", days: 2, status: "Pending" },
+  { employee: "Sara Kim", type: "Personal", from: "2026-06-24", to: "2026-06-24", days: 1, status: "Approved" },
+  { employee: "Sam Turner", type: "Annual", from: "2026-07-01", to: "2026-07-05", days: 5, status: "Pending" }
+];
+
+const sampleLeaves = [
+  { employee: "Nora Evans", type: "Annual", from: "2026-07-08", to: "2026-07-10", days: 3, status: "Pending" },
+  { employee: "Marcus Lee", type: "Personal", from: "2026-06-28", to: "2026-06-28", days: 1, status: "Pending" },
+  { employee: "Maya Chen", type: "Sick", from: "2026-06-17", to: "2026-06-18", days: 2, status: "Approved" }
+];
+
 let employeeData = [...employees];
+let leaveData = [...leaves];
 let additionIndex = 0;
+let leaveAdditionIndex = 0;
 let selectedEmployeeName = "";
 
 const departmentFilter = document.querySelector("#departmentFilter");
@@ -28,6 +43,8 @@ const bandFilter = document.querySelector("#bandFilter");
 const searchInput = document.querySelector("#searchInput");
 const employeeTable = document.querySelector("#employeeTable");
 const employeeCount = document.querySelector("#employeeCount");
+const leaveTable = document.querySelector("#leaveTable");
+const leaveCount = document.querySelector("#leaveCount");
 const departmentChart = document.querySelector("#departmentChart");
 const riskDonut = document.querySelector("#riskDonut");
 const riskLegend = document.querySelector("#riskLegend");
@@ -83,6 +100,18 @@ function updateMetrics(filtered) {
   document.querySelector("#riskRate").textContent = formatPercent(filtered.length ? (riskCount / filtered.length) * 100 : 0);
   document.querySelector("#promotionReady").textContent = readyCount;
   document.querySelector("#scoreTrend").textContent = filtered.length ? `${filtered.length} selected employees` : "No matching employees";
+}
+
+function updateLeaveMetrics() {
+  const approvedDays = leaveData
+    .filter((leave) => leave.status === "Approved")
+    .reduce((sum, leave) => sum + leave.days, 0);
+  const pendingCount = leaveData.filter((leave) => leave.status === "Pending").length;
+
+  document.querySelector("#leaveRequests").textContent = leaveData.length;
+  document.querySelector("#approvedLeaveDays").textContent = approvedDays;
+  document.querySelector("#pendingLeaves").textContent = pendingCount;
+  leaveCount.textContent = `${leaveData.length} leave request${leaveData.length === 1 ? "" : "s"}`;
 }
 
 function setEmployeeHighlight() {
@@ -181,12 +210,32 @@ function renderTable(filtered) {
   setEmployeeHighlight();
 }
 
+function renderLeaves() {
+  leaveTable.innerHTML = "";
+
+  leaveData.forEach((leave, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><span class="employee-name">${leave.employee}</span></td>
+      <td>${leave.type}</td>
+      <td>${leave.from}</td>
+      <td>${leave.to}</td>
+      <td>${leave.days}</td>
+      <td><span class="status-pill status-${leave.status.toLowerCase()}">${leave.status}</span></td>
+      <td><button class="table-action" type="button" data-leave-index="${index}">${leave.status === "Pending" ? "Approve" : "View"}</button></td>
+    `;
+    leaveTable.appendChild(row);
+  });
+}
+
 function render() {
   const filtered = getFilteredEmployees();
   updateMetrics(filtered);
+  updateLeaveMetrics();
   renderDepartmentChart(filtered);
   renderRiskDonut(filtered);
   renderTable(filtered);
+  renderLeaves();
 }
 
 function showToast(message) {
@@ -261,12 +310,36 @@ document.querySelector("#addEmployee").addEventListener("click", () => {
   showToast("Sample employee added.");
 });
 
+document.querySelector("#addLeave").addEventListener("click", () => {
+  const nextLeave = sampleLeaves[leaveAdditionIndex % sampleLeaves.length];
+  leaveData = [...leaveData, { ...nextLeave }];
+  leaveAdditionIndex += 1;
+  render();
+  showToast(`${nextLeave.employee} leave request added.`);
+});
+
 employeeTable.addEventListener("click", (event) => {
   const button = event.target.closest(".table-action");
   if (!button) return;
   selectedEmployeeName = button.dataset.name;
   setEmployeeHighlight();
   showToast(`${button.dataset.name} opened for manager review.`);
+});
+
+leaveTable.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-leave-index]");
+  if (!button) return;
+
+  const index = Number(button.dataset.leaveIndex);
+  const leave = leaveData[index];
+  if (leave.status === "Pending") {
+    leaveData = leaveData.map((item, itemIndex) => itemIndex === index ? { ...item, status: "Approved" } : item);
+    render();
+    showToast(`${leave.employee} leave approved.`);
+    return;
+  }
+
+  showToast(`${leave.employee} leave details opened.`);
 });
 
 populateDepartments();

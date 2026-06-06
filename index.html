@@ -20,6 +20,7 @@
       <button class="nav-item active" type="button">Dashboard</button>
       <button class="nav-item" type="button">Reviews</button>
       <button class="nav-item" type="button">Teams</button>
+      <button class="nav-item" type="button">Leaves</button>
       <button class="nav-item" type="button">Reports</button>
     </nav>
 
@@ -113,6 +114,24 @@
       </article>
     </section>
 
+    <section class="leave-grid" aria-label="Leave summary">
+      <article class="metric-card">
+        <span>Leave Requests</span>
+        <strong id="leaveRequests">0</strong>
+        <p>Open and approved leave entries</p>
+      </article>
+      <article class="metric-card">
+        <span>Approved Days</span>
+        <strong id="approvedLeaveDays">0</strong>
+        <p>Scheduled absence days</p>
+      </article>
+      <article class="metric-card">
+        <span>Pending Leaves</span>
+        <strong id="pendingLeaves">0</strong>
+        <p>Waiting for manager action</p>
+      </article>
+    </section>
+
     <section class="panel table-panel">
       <div class="panel-header">
         <div>
@@ -137,6 +156,33 @@
             </tr>
           </thead>
           <tbody id="employeeTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel table-panel" id="leavesPanel">
+      <div class="panel-header">
+        <div>
+          <h2>Employee Leaves</h2>
+          <p id="leaveCount">0 leave requests</p>
+        </div>
+        <button class="secondary-button" id="addLeave" type="button">Add Leave</button>
+      </div>
+
+      <div class="table-scroll">
+        <table class="leave-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Type</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Days</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="leaveTable"></tbody>
         </table>
       </div>
     </section>

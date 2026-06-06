@@ -255,6 +255,13 @@ input:focus {
   margin-bottom: 18px;
 }
 
+.leave-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
 .metric-card,
 .panel {
   background: var(--surface);
@@ -402,6 +409,10 @@ table {
   min-width: 860px;
 }
 
+.leave-table {
+  min-width: 720px;
+}
+
 th,
 td {
   padding: 14px 12px;
@@ -435,7 +446,8 @@ tbody tr.selected-row {
 
 .score-pill,
 .risk-pill,
-.potential-pill {
+.potential-pill,
+.status-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -470,6 +482,16 @@ tbody tr.selected-row {
 .risk-high {
   background: #f9e1e1;
   color: var(--red);
+}
+
+.status-approved {
+  background: #e2f2eb;
+  color: var(--green-dark);
+}
+
+.status-pending {
+  background: #fff0d8;
+  color: var(--amber);
 }
 
 .table-action {
@@ -535,6 +557,7 @@ button:active {
   }
 
   .metric-grid,
+  .leave-grid,
   .dashboard-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -559,6 +582,7 @@ button:active {
 
   .filters,
   .metric-grid,
+  .leave-grid,
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
