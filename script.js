@@ -44,6 +44,9 @@ const bandFilter = document.querySelector("#bandFilter");
 const searchInput = document.querySelector("#searchInput");
 const employeeTable = document.querySelector("#employeeTable");
 const employeeCount = document.querySelector("#employeeCount");
+const reviewDetail = document.querySelector("#reviewDetail");
+const reviewDetailSubtitle = document.querySelector("#reviewDetailSubtitle");
+const completeReview = document.querySelector("#completeReview");
 const leaveTable = document.querySelector("#leaveTable");
 const leaveCount = document.querySelector("#leaveCount");
 const departmentChart = document.querySelector("#departmentChart");
@@ -119,6 +122,49 @@ function setEmployeeHighlight() {
   employeeTable.querySelectorAll("tr").forEach((row) => {
     row.classList.toggle("selected-row", row.dataset.name === selectedEmployeeName);
   });
+}
+
+function getReviewRecommendation(employee) {
+  if (employee.score >= 4.5 && employee.goals >= 90) return "Prepare promotion discussion";
+  if (employee.risk === "High") return "Schedule retention check-in";
+  if (employee.goals < 75) return "Create goal recovery plan";
+  return "Confirm growth goals";
+}
+
+function openEmployeeReview(employeeName) {
+  const employee = employeeData.find((item) => item.name === employeeName);
+  if (!employee) return;
+
+  selectedEmployeeName = employee.name;
+  setEmployeeHighlight();
+  reviewDetailSubtitle.textContent = `${employee.name} - ${employee.role}`;
+  completeReview.disabled = false;
+  reviewDetail.innerHTML = `
+    <div class="review-summary">
+      <div>
+        <span>Department</span>
+        <strong>${employee.department}</strong>
+      </div>
+      <div>
+        <span>Score</span>
+        <strong>${employee.score.toFixed(1)}</strong>
+      </div>
+      <div>
+        <span>Goals</span>
+        <strong>${employee.goals}%</strong>
+      </div>
+      <div>
+        <span>Potential</span>
+        <strong>${employee.potential}</strong>
+      </div>
+    </div>
+    <div class="review-note">
+      <span>Recommended action</span>
+      <strong>${getReviewRecommendation(employee)}</strong>
+      <p>Retention risk: ${employee.risk}. Use this review to confirm next-cycle goals and manager follow-up.</p>
+    </div>
+  `;
+  scrollToPanel("#reviewDetailPanel");
 }
 
 function setLeaveHighlight() {
@@ -337,10 +383,12 @@ document.querySelector("#exportReport").addEventListener("click", exportReport);
 
 document.querySelector("#addEmployee").addEventListener("click", () => {
   const nextEmployee = sampleAdditions[additionIndex % sampleAdditions.length];
-  employeeData = [...employeeData, { ...nextEmployee, name: `${nextEmployee.name} ${Math.floor(additionIndex / sampleAdditions.length) + 1}` }];
+  const employee = { ...nextEmployee, name: `${nextEmployee.name} ${Math.floor(additionIndex / sampleAdditions.length) + 1}` };
+  employeeData = [...employeeData, employee];
   additionIndex += 1;
   populateDepartments();
   render();
+  openEmployeeReview(employee.name);
   showToast("Sample employee added.");
 });
 
@@ -357,9 +405,13 @@ document.querySelector("#addLeave").addEventListener("click", () => {
 employeeTable.addEventListener("click", (event) => {
   const button = event.target.closest(".table-action");
   if (!button) return;
-  selectedEmployeeName = button.dataset.name;
-  setEmployeeHighlight();
+  openEmployeeReview(button.dataset.name);
   showToast(`${button.dataset.name} opened for manager review.`);
+});
+
+completeReview.addEventListener("click", () => {
+  if (!selectedEmployeeName) return;
+  showToast(`${selectedEmployeeName} review marked complete.`);
 });
 
 leaveTable.addEventListener("click", (event) => {
